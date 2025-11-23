@@ -3,6 +3,7 @@ using System;
 using AdotaPet.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdotaPet.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123192116_CreatePets")]
+    partial class CreatePets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");
@@ -51,7 +54,7 @@ namespace AdotaPet.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PetId")
+                    b.Property<Guid>("PetID")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Url")
@@ -60,7 +63,7 @@ namespace AdotaPet.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PetId");
+                    b.HasIndex("PetID");
 
                     b.ToTable("PetPhotos");
                 });
@@ -95,7 +98,7 @@ namespace AdotaPet.Api.Migrations
                 {
                     b.HasOne("AdotaPet.Api.Models.Pet", "Pet")
                         .WithMany("Photos")
-                        .HasForeignKey("PetId")
+                        .HasForeignKey("PetID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

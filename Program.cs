@@ -1,22 +1,47 @@
 using AdotaPet.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using AdotaPet.Api.Endpoints;
+using AdotaPet.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
+// --- CONFIGURAÇÃO DE SERVIÇOS ---
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=adotapet.db"));
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+var secretKey = "sua-chave-ultra-secreta-32chars-no-minimo";
+builder.Services.AddSingleton(new JwtService(secretKey));
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddAuthorization(); // Serviço de permissão
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- CONFIGURAÇÃO DE PIPELINE (Middleware) ---
+app.UseStaticFiles(); // Para servir as fotos salvas
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -24,30 +49,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// A ORDEM AQUI É SAGRADA:
+app.UseAuthentication(); // 1 verifica quem é
+app.UseAuthorization();  // 2 verifica se pode entrar
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+// --- SEUS ENDPOINTS ---
 await app.MapUserEndpoints();
+await app.MapPetEndpoints(); 
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
