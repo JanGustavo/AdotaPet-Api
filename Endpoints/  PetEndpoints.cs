@@ -44,7 +44,7 @@ public static class PetEndpoints
                         Directory.CreateDirectory(uploadPath);
                     }
 
-                    // 3. Define o nome do arquivo (Corrigi o Guid.NewGuid() aqui também)
+                    // 3. Define o nome do arquivo 
                     var fileName = $"{Guid.NewGuid()}_{file.FileName}";
                     var filePath = Path.Combine(uploadPath, fileName);
 
