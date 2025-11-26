@@ -1,12 +1,10 @@
-
+![.NET Badge](https://img.shields.io/badge/.NET%208.0-purple?style=for-the-badge)
+![License](https://img.shields.io/github/license/JanGustavo/AdotaPet-Api?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-blue?style=for-the-badge)
 ````markdown
 # 🐾 AdotaPet API
 
 > API RESTful desenvolvida em .NET Core para a plataforma de adoção de animais **AdotaPet**, com mecânica de navegação estilo Tinder/TikTok.
-
-![Badge .NET](https://img.shields.io/badge/.NET%20Core-8.0-purple)
-![Badge License](https://img.shields.io/github/license/JanGustavo/AdotaPet-Api)
-![Badge Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
 
 ## 📋 Sobre o Projeto
 
