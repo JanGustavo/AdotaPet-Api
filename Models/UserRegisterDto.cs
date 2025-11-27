@@ -6,6 +6,8 @@
         public string Password { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public UserType UserType { get; set; }
+        public string Phone { get; set; } = string.Empty;
+        public bool HasWhatsapp { get; set; }
 
     }
 

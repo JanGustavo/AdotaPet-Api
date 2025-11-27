@@ -10,6 +10,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // URL do Front
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 // --- CONFIGURAÇÃO DE SERVIÇOS ---
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -65,6 +76,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngularApp"); //avisa 
 
 
 
