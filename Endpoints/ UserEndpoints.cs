@@ -52,7 +52,10 @@ static class UserEndpoints
                 Email = dto.Email,
                 PasswordHash = passwordHash,
                 Name = dto.Name,
-                UserType = dto.UserType
+                UserType = dto.UserType,
+                Phone = dto.Phone,
+                HasWhatsapp = dto.HasWhatsapp,
+                PetsRegistered = dto.PetsRegistered
             };
 
             db.Users.Add(user);
