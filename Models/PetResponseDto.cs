@@ -9,5 +9,8 @@ public class PetResponseDto
     public string? Description { get; set; }
     public int? Age { get; set; }
 
+    public string? OwnerName { get; set; }
+    public string? OwnerPhone { get; set; }
+
     public List<string> Photos { get; set; } = new();
 }
