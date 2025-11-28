@@ -1,3 +1,19 @@
-namespace AdotaPet.Api.Models;public class Pet{    public Guid Id { get; set; } = Guid.NewGuid();    public string Name { get; set; } = string.Empty;    public string Species { get; set; } = string.Empty;    public string? Breed { get; set; }    public string? Description { get; set; }    public int? Age { get; set; }    public List<PetPhoto> Photos { get; set; } = new();
-    public object Usuario { get; internal set; }
-}
+namespace AdotaPet.Api.Models;
+
+public class Pet
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    public string Name { get; set; } = string.Empty;
+
+    public string Species { get; set; } = string.Empty;
+
+    public string? Breed { get; set; }
+
+    public string? Description { get; set; }
+
+    public int? Age { get; set; }
+
+    public List<PetPhoto> Photos { get; set; } = new();
+    public User UserId { get;  set; }
+}

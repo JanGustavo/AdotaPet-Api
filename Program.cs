@@ -91,7 +91,7 @@ app.UseAuthorization();  // 2 verifica se pode entrar
 
 await app.MapUserEndpoints();
 
-await app.MapPetEndpoints();
+ app.MapPetEndpoints();
 
 app.FeedPetEndpoints();
 

@@ -22,7 +22,7 @@ public static class PetEndpoints
                 Species = form["species"]!,
                 Breed = form["breed"],
                 Description = form["description"],
-                UserId = Guid.Parse(userIdClaim.Value) // Vincula ao usuário logado
+                UserId = db.Users.Find(Guid.Parse(userIdClaim.Value)) // Vincula ao usuário logado
             };
 
             if (int.TryParse(form["age"], out var age)) pet.Age = age;
@@ -63,12 +63,12 @@ public static class PetEndpoints
         {
             // 1. Busca os pets e inclui o Dono (User) e as Fotos
             var pets = await db.Pets
-                .Include(p => p.User)
+                .Include(p => p.UserId)
                 .Include(p => p.Photos)
                 .ToListAsync();
 
             // 2. LÓGICA DO DEMO (Hardcode Seguro)
-            if (pets.Any())
+            if (pets.Count > 0)
             {
                 // Pega o primeiro pet da lista para transformar no Thor
                 var demoPet = pets[0];
@@ -78,10 +78,10 @@ public static class PetEndpoints
                 demoPet.Description = "Cachorro amigável para adoção urgente! Muito brincalhão.";
 
                 // Se tiver dono, força o telefone. Se não tiver, ignora para não crashar.
-                if (demoPet.User != null)
+                if (demoPet.UserId != null)
                 {
-                    demoPet.User.Phone = "5583998442632"; // O NÚMERO DO WHATSAPP
-                    demoPet.User.Name = "Janderson (Dono)";
+                    demoPet.UserId.Phone = "5583998442632"; // O NÚMERO DO WHATSAPP
+                    demoPet.UserId.Name = "Janderson (Dono)";
                 }
             }
 
@@ -94,13 +94,13 @@ public static class PetEndpoints
                 Species = p.Species,
                 Breed = p.Breed,
                 Description = p.Description,
-                OwnerName = p.User?.Name,       // Manda o nome do dono
-                OwnerPhone = p.User?.Phone,     // Manda o telefone (que forçamos acima)
-
-                // Transforma a lista de objetos Photo em lista de Strings (URLs)
+                OwnerName = p.UserId?.Name,
+                OwnerPhone = p.UserId?.Phone,
                 Photos = p.Photos.Select(photo => photo.Url).ToList()
             })
-            .OrderBy(x => Guid.NewGuid()); // Embaralha para parecer dinâmico
+            .OrderBy(x => Guid.NewGuid());
+
+
 
             return Results.Ok(response);
         }).RequireAuthorization();
