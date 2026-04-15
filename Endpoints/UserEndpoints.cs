@@ -17,7 +17,7 @@ static class UserEndpoints
             return Results.Ok(users);
         });
 
-        //Get -> pegar o usu�rio logado
+        //Get -> pegar o usu�rio logado
         app.MapGet("/me", async (AppDbContext db, HttpContext http) =>
         {
             //pegar o userID das claims
@@ -27,7 +27,7 @@ static class UserEndpoints
 
             var userId = Guid.Parse(userIdClaim.Value);
 
-            //buscar usu�rio no banco
+            //buscar usu�rio no banco
             var user = await db.Users.FindAsync(userId);
 
             if (user is null) return Results.NotFound();
@@ -42,7 +42,7 @@ static class UserEndpoints
         })
          .RequireAuthorization();
 
-        //Post -> criar usu�rio
+        //Post -> criar usu�rio
         app.MapPost("/users", async (AppDbContext db, UserRegisterDto dto) =>
         {
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
@@ -70,12 +70,12 @@ static class UserEndpoints
             });
         });
 
-        //faz a solicita��o de accesso, se conseguir vai retornar um token o qual vai buscar o id no banco e gerar o token
+        //faz a solicita��o de accesso, se conseguir vai retornar um token o qual vai buscar o id no banco e gerar o token
         app.MapPost("/login", async (AppDbContext db, JwtService jwt, UserLoginDto dto) =>
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
 
-            if (user is null) return Results.BadRequest("Usu�rio n�o encontrado");
+            if (user is null) return Results.BadRequest("Usu�rio n�o encontrado");
 
             bool passwordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
 
@@ -84,5 +84,59 @@ static class UserEndpoints
             var token = jwt.GenerateToken(user.Id);
             return Results.Ok(new { token });
         });
+
+        // deletar usu�rio
+        app.MapDelete("/users/{id}", async (AppDbContext db, HttpContext http, Guid id) =>
+        {
+            // Pega o ID do usuário do token
+            var userIdClaim = http.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim is null) return Results.Unauthorized();
+
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            // Valida se está deletando a própria conta
+            if (userId != id) return Results.Forbid();
+
+            var user = await db.Users.FindAsync(id);
+            if (user is null) return Results.NotFound("Usuário não encontrado");
+
+            db.Users.Remove(user);
+            await db.SaveChangesAsync();
+
+            return Results.Ok("Usuário deletado com sucesso");
+        })
+        .RequireAuthorization();
+
+        app.MapPatch("/users/{id}", async (AppDbContext db, HttpContext http, Guid id, UpdateUserDto dto) =>
+        {
+            // Pega o ID do usuário do token
+            var userIdClaim = http.User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim is null) return Results.Unauthorized();
+
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            // Valida se está atualizando a própria conta
+            if (userId != id) return Results.Forbid();
+
+            var user = await db.Users.FindAsync(id);
+            if (user is null) return Results.NotFound("Usuário não encontrado");
+
+            // Atualiza os campos permitidos
+            user.Name = dto.Name;
+            user.Email = dto.Email;
+            user.Phone = dto.Phone;
+            user.HasWhatsapp = dto.HasWhatsapp;
+            user.PetsRegistered = dto.PetsRegistered;
+
+            await db.SaveChangesAsync();
+
+            return Results.Ok("Usuário atualizado com sucesso");
+
+        })
+        .RequireAuthorization();
+
+        //atualizar informações
+
+
     }
 }

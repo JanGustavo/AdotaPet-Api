@@ -21,13 +21,18 @@ builder.Services.AddCors(options =>
         });
 });
 
-// --- CONFIGURA«√O DE SERVI«OS ---
+// --- CONFIGURAÔøΩÔøΩO DE SERVIÔøΩOS ---
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 
     options.UseSqlite("Data Source=adotapet.db"));
 
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "AdotaPet API", Version = "v1" });
+});
 
 var secretKey = "sua-chave-ultra-secreta-32chars-no-minimo";
 builder.Services.AddSingleton(new JwtService(secretKey));
@@ -51,7 +56,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
     });
 
-builder.Services.AddAuthorization(); // ServiÁo de permiss„o
+builder.Services.AddAuthorization(); // ServiÔøΩo de permissÔøΩo
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 
@@ -63,7 +68,7 @@ var app = builder.Build();
 
 
 
-// --- CONFIGURA«√O DE PIPELINE (Middleware) ---
+// --- CONFIGURAÔøΩÔøΩO DE PIPELINE (Middleware) ---
 
 app.UseStaticFiles(); // Para servir as fotos salvas
 
@@ -73,7 +78,20 @@ if (app.Environment.IsDevelopment())
 
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "AdotaPet API v1");
+        options.RoutePrefix = "swagger";
+    });
 }
+
+// Rota padr√£o na raiz
+app.MapGet("/", () => Results.Content(
+    "<h1>üêæ AdotaPet API</h1><p>API para plataforma de ado√ß√£o de animais</p><p><a href='/swagger'>Documenta√ß√£o Swagger</a></p>",
+    "text/html"))
+  .WithName("Home")
+  .WithOpenApi();
 
 app.UseHttpsRedirection();
 
@@ -81,7 +99,7 @@ app.UseCors("AllowAngularApp"); //avisa
 
 
 
-app.UseAuthentication(); // 1 verifica quem È
+app.UseAuthentication(); // 1 verifica quem ÔøΩ
 
 app.UseAuthorization();  // 2 verifica se pode entrar
 
@@ -91,10 +109,6 @@ app.UseAuthorization();  // 2 verifica se pode entrar
 
 await app.MapUserEndpoints();
 
- app.MapPetEndpoints();
-
-app.FeedPetEndpoints();
-
-
+app.MapPetEndpoints();
 
 app.Run();

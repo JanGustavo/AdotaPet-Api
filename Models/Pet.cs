@@ -15,5 +15,7 @@ public class Pet
     public int? Age { get; set; }
 
     public List<PetPhoto> Photos { get; set; } = new();
-    public User UserId { get;  set; }
+
+    public Guid UserId { get; set; }
+    public User? User { get; set; }
 }
